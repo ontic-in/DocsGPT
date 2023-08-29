@@ -26,6 +26,7 @@ services:
       - ./application/indexes:/app/application/indexes
       - ./application/inputs:/app/application/inputs
       - ./application/vectors:/app/application/vectors
+      - ./application/app.py:/app/application/app.py
     depends_on:
       - redis
       - mongo

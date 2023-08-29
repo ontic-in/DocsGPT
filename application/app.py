@@ -74,7 +74,7 @@ if platform.system() == "Windows":
 
 # loading the .env file
 dotenv.load_dotenv()
-
+# logger.error("\n\n\nnasd\n\n\n")
 # load the prompts
 current_dir = os.path.dirname(os.path.abspath(__file__))
 with open(os.path.join(current_dir, "prompts", "combine_prompt.txt"), "r") as f:
@@ -96,7 +96,7 @@ api_key_set = settings.API_KEY is not None
 embeddings_key_set = settings.EMBEDDINGS_KEY is not None
 
 app = Flask(__name__)
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER = "inputs"
+app.config["UPLOAD_FOLDER"] = "application/inputs"
 app.config["CELERY_BROKER_URL"] = settings.CELERY_BROKER_URL
 app.config["CELERY_RESULT_BACKEND"] = settings.CELERY_RESULT_BACKEND
 app.config["MONGO_URI"] = settings.MONGO_URI
@@ -260,6 +260,7 @@ def complete_stream(question, docsearch, chat_history, api_key, conversation_id)
 
 @app.route("/stream", methods=["POST"])
 def stream():
+    # logger.error("Entered stream")
     data = request.get_json()
     # get parameter from url question
     question = data["question"]
@@ -282,6 +283,9 @@ def stream():
         vectorstore = get_vectorstore({"active_docs": data["active_docs"]})
     else:
         vectorstore = ""
+    # logger.error("Api key: " + api_key + " embeddings key: " + embeddings_key + " vectorstore: " + vectorstore)
+    # logger.error(api_key , embeddings_key , vectorstore)
+    # logger.error("\n\n\n\n vectorstore: " + vectorstore + "\n" + "embeddings key: " + embeddings_key + "\n\n\n\n")
     docsearch = get_docsearch(vectorstore, embeddings_key)
 
     # question = "Hi"
@@ -556,6 +560,10 @@ def combined_json():
 
 @app.route("/api/upload", methods=["POST"])
 def upload_file():
+
+    # print("\n\n\nqwerty\n\n\n")
+    # logger.error("Entered upload_file")
+    # logger.error(request.form)
     """Upload a file to get vectorized and indexed."""
     if "user" not in request.form:
         return {"status": "no user"}
@@ -572,17 +580,20 @@ def upload_file():
         return {"status": "no file name"}
 
     if file:
+        # logger.error("user: " + user + " job_name: " + job_name + " filename: " + file.filename)
         filename = secure_filename(file.filename)
         # save dir
         save_dir = os.path.join(app.config["UPLOAD_FOLDER"], user, job_name)
         # create dir if not exists
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
-
+        # logger.error("save_dir: " + save_dir)
+        # logger.error("filename: " + filename)
         file.save(os.path.join(save_dir, filename))
         task = ingest.delay("temp", [".rst", ".md", ".pdf", ".txt"], job_name, filename, user)
         # task id
         task_id = task.id
+        # logger.error("Task id: " + task_id)
         return {"status": "ok", "task_id": task_id}
     else:
         return {"status": "error"}
@@ -621,7 +632,7 @@ def upload_index_files():
         return {"status": "no file name"}
 
     # saves index files
-    save_dir = os.path.join("indexes", user, job_name)
+    save_dir = os.path.join("application/indexes", user, job_name)
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     file_faiss.save(os.path.join(save_dir, "index.faiss"))

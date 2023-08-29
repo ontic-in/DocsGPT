@@ -20,4 +20,4 @@ ENV FLASK_DEBUG=true
 
 EXPOSE 7091
 
-CMD ["gunicorn", "-w", "2", "--timeout", "120", "--bind", "0.0.0.0:7091", "application.wsgi:app"]
+CMD ["gunicorn", "-w", "1", "--timeout", "120", "--bind", "0.0.0.0:7091", "--reload", "application.wsgi:app"]

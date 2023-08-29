@@ -7,5 +7,5 @@ if [[ -n "$OPENAI_API_BASE" ]] && [[ -n "$OPENAI_API_VERSION" ]] && [[ -n "$AZUR
   docker-compose -f docker-compose-azure.yaml build && docker-compose -f docker-compose-azure.yaml up
 else
   echo "Running Plain Configuration"
-  docker-compose build && docker-compose up
+  docker compose build && docker compose up
 fi
